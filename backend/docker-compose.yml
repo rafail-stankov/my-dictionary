@@ -1,0 +1,32 @@
+version: "3"
+services:
+  express:
+    # command: ["./wait-for-it.sh", "db:3306"]
+    command: ["./wait-for-it.sh", "db:3306", "--", "npm", "run", "start"]
+    build: ./express
+    environment:
+      MYSQL_DATABASE: mydict
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_USER: mydictuser
+      MYSQL_PASSWORD: 123
+      DATABASE_HOST: db
+      PORT: 3434
+    ports:
+      - "3434:3434"
+    depends_on:
+      - "db"
+    restart: on-failure
+  db:
+    # image: mysql:5.6
+    build: ./db
+    environment:
+      MYSQL_DATABASE: mydict
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_USER: mydictuser
+      MYSQL_PASSWORD: 123
+      DATABASE_HOST: db
+    command: --max_allowed_packet=32505856 --connect_timeout=600 --net_read_timeout=600 --net_write_timeout=600      # Set max_allowed_packet to 256M (or any other value)
+    volumes:
+      - my-datavolume:/var/lib/mysql
+volumes:
+  my-datavolume:
